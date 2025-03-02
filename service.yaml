@@ -1,0 +1,21 @@
+{{- range $container := .Values.products }}
+---
+apiVersion: v1
+kind: Service
+{{- $appname :=  lower $container.name }}
+metadata:
+  name: {{ $appname }}
+  namespace: {{ $.Values.namespace }}
+  labels:
+    app: {{ $appname }}
+spec:
+  type: {{ $.Values.service.type }}
+  ports:
+    - port: {{ $.Values.service.port }}
+      targetPort: {{ $container.targetPort }}
+      nodePort: {{ $container.nodeport }}
+      protocol: TCP
+      name: http
+  selector:
+    app: {{ $appname }}
+{{- end }}

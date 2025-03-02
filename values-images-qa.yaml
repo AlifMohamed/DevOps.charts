@@ -1,0 +1,4 @@
+containerBackendVersions:
+  be_app: 10.10.1581753336-alpha.1
+containerFrontEndVersions:
+  ui_app: 10.10.1582695720-alpha.1

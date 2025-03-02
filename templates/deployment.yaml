@@ -1,0 +1,68 @@
+{{- range $container := .Values.products }}
+---
+apiVersion: apps/v1
+kind: Deployment
+{{- $appname :=  lower  $container.name }}
+metadata:
+  name: {{ $appname }}
+  namespace: {{ $.Values.namespace }}
+  labels:
+    app: {{ $appname }}
+spec:
+  replicas: {{ $.Values.replicaCount }}
+  selector:
+    matchLabels:
+      app: {{ $appname }}
+  template:
+    metadata:
+      labels:
+        app: {{ $appname }}
+    spec:
+      containers:
+        - name: {{ $appname }}
+          image: "{{ $.Values.image.repository }}/{{ lower $container.imagename }}:{{ tpl $container.tagVersion $ }}"
+          imagePullPolicy: {{ $.Values.image.pullPolicy }}
+          ports:
+            - name: http
+              containerPort: {{ $container.targetPort }}
+              protocol: TCP
+          env:
+          {{- range $key, $value := $.Values.env }}
+          - name: {{ $key }}
+            value: {{ tpl $value $ | quote }}
+          {{- end }}
+
+          {{- range $key, $value := $container.env }}
+          - name: {{ $key }}
+            value: {{ tpl $value $ | quote }}
+          {{- end }}
+
+          {{- range $key, $secretKey := $.Values.envSecrets }}
+          - name: {{ $key }}
+            valueFrom:
+              secretKeyRef:
+                name: {{ $.Values.commonSecret }}
+                key: {{ $secretKey }}
+          {{- end }}
+
+          {{- range $key, $secret := $container.envSecrets }}
+          - name: {{ $key }}
+            valueFrom:
+              secretKeyRef:
+                name: {{ $.Values.commonSecret }}
+                key: {{ $secret }}
+          {{- end }}
+          {{- if $container.resources }}
+          resources:
+            {{- toYaml $container.resources | nindent 12 }}
+          {{- else }}
+          resources:
+            {{- toYaml $.Values.resources | nindent 12 }}
+          {{- end }}
+          volumeMounts:
+          - mountPath: /tmp
+            name: common-volume
+      volumes:
+      - name: common-volume
+        emptyDir: {}  
+{{- end }}

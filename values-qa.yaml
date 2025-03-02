@@ -1,0 +1,40 @@
+image:
+  repository: kmdevops.azurecr.io
+  pullPolicy: IfNotPresent
+
+namespace: "devops-poc"
+replicaCount: 1
+
+resources:
+  limits:
+    cpu: 300m
+    memory: 200Mi
+  requests:
+    cpu: 30m
+    memory: 100Mi
+
+service:
+  type: NodePort
+  port: 80
+
+products:
+  - name: "uiapp"
+    imagename: ui_app
+    tagVersion: |-
+      {{ .Values.containerFrontEndVersions.ui_app }}
+    nodeport: 30000
+    targetPort: 3000
+
+  - name: "beapp"
+    imagename: be_app
+    tagVersion: |-
+      {{ .Values.containerBackendVersions.be_app }}
+    nodeport: 30001
+    targetPort: 3001
+    env:
+      DB_USER_NAME: "db_username"
+      DB_HOST: "db_host"
+      DB_NAME: "db_name"
+      DB_PASSWORD: "db_password"
+      DB_PORT: "db_port"
+

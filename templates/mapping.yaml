@@ -1,0 +1,26 @@
+apiVersion: getambassador.io/v3alpha1
+kind: Mapping
+metadata:
+  name: ui-mapping
+  namespace: devops-poc
+spec:
+  ambassador_id: [ "ambassador" ]
+  prefix: /.*
+  prefix_regex: true
+  service: uiapp
+  bypass_auth: true
+  rewrite: ""
+---
+apiVersion: getambassador.io/v3alpha1
+kind: Mapping
+metadata:
+  name: be-mapping
+  namespace: devops-poc
+spec:
+  ambassador_id: [ "ambassador" ]
+  prefix: /be/.*
+  prefix_regex: true
+  service: beapp
+  bypass_auth: true
+  precedence: 30000
+  rewrite: ""
